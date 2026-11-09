@@ -18,8 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-//kalau pakai @controller responsenya html di methodnya harus ada response body biair jadi json
-//maka dari itu
 @Slf4j
 @RestController
 @RequestMapping("/api/v1")
@@ -32,45 +30,53 @@ public class AnalyzerController {
 //        this.charAnalysisService = charAnalysisService;
 //    }
 
-    @GetMapping("/hello")
-    public String hello(){
-        return "Hello, Putra";
-    }
+    // @GetMapping("/hello")
+    // public String hello(){
+    //     return "Hello, Putra";
+    // }
 
-    @PostMapping("/analyzer")
-    public Map<Character, Integer> analyze(
-            @RequestBody Map<String, String> body
-    ){
-        CharCounter counter =
-                new CharCounter(body.get("kalimat"));
-        Map<Character, Integer> hasil =
-                new TreeMap<Character, Integer>();
+    // @PostMapping("/analyzer")
+    // public Map<Character, Integer> analyze(
+    //         @RequestBody Map<String, String> body
+    // ){
+    //     CharCounter counter =
+    //             new CharCounter(body.get("kalimat"));
+    //     Map<Character, Integer> hasil =
+    //             new TreeMap<Character, Integer>();
 
-        for(char c = 'a'; c<= 'z'; c++){
-            int jumlah = counter.getJumlah(c);
+    //     for(char c = 'a'; c<= 'z'; c++){
+    //         int jumlah = counter.getJumlah(c);
 
-            if(jumlah > 0){
-                hasil.put(c, jumlah);
-            }
-        }
+    //         if(jumlah > 0){
+    //             hasil.put(c, jumlah);
+    //         }
+    //     }
 
-        return hasil;
+    //     return hasil;
 
-    }
+    // }
 
-    @GetMapping("/find")
+    @GetMapping
     public BaseResponse<List<CharAnalysisResponse>> cari(@RequestParam(required = false) String kalimat) {
         return BaseResponse.ok(charAnalysisService.cari(kalimat));
     }
-
 
     @PostMapping
     public BaseResponse<CharAnalysisResponse> create(
             @RequestBody CharAnalysisRequest request,
             @RequestHeader(value = "X-Request-Id", required = false) String requestId){
 
-        log.info("X-Request-Id={}, kalimat={}", requestId, request.getKalimat());
-        return BaseResponse.ok(charAnalysisService.simpan(request));
+        if (request == null || request.getKalimat() == null || request.getKalimat().isBlank()) {
+            return BaseResponse.error("Kalimat tidak boleh kosong");
+        }
+        if (request.getKalimat().length() > 255) {
+            return BaseResponse.error("Kalimat maksimal 255 karakter");
+        }
+
+        if (requestId != null && !requestId.isBlank()) {
+            log.info("X-Request-Id: {}, kalimat: {}", requestId, request.getKalimat());
+        }
+        return BaseResponse.ok(charAnalysisService.create(request));
     }
 
     @GetMapping("/{id}")
@@ -83,6 +89,14 @@ public class AnalyzerController {
         return BaseResponse.ok(response);
     }
 
+    @GetMapping("/minimal")
+    public BaseResponse<List<CharAnalysisResponse>> getByMinimumTotalLetters(@RequestParam int min){
+        return BaseResponse.ok(charAnalysisService.findByMinimumTotalLetters(min));
+    }
 
+    @GetMapping("/terbaru")
+    public BaseResponse<List<CharAnalysisResponse>> getLatest(){
+        return BaseResponse.ok(charAnalysisService.findLatest());
+    }
 
 }

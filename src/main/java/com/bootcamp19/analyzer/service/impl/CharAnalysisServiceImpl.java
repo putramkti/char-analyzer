@@ -38,16 +38,16 @@ public class CharAnalysisServiceImpl implements CharAnalysisService {
     }
 
     @Override
-    public CharAnalysisResponse simpan(CharAnalysisRequest request) {
+    public CharAnalysisResponse create(CharAnalysisRequest request) {
         CharCounter counter = new CharCounter(request.getKalimat());
 
-        CharAnalysis data = new CharAnalysis();
-        data.setKalimat(counter.getKalimat());
-        data.setTotalHuruf(counter.getTotalHuruf());
-        data.setCreatedAt(LocalDateTime.now());
+        CharAnalysis entity = new CharAnalysis();
+        entity.setKalimat(counter.getKalimat());
+        entity.setTotalHuruf(counter.getTotalHuruf());
+        entity.setCreatedAt(LocalDateTime.now());
 
-        CharAnalysis tersimpan = charAnalysisRepository.save(data);
-        return CharAnalysisResponse.from(tersimpan, counter.toMap());
+        CharAnalysis saved = charAnalysisRepository.save(entity);
+        return CharAnalysisResponse.from(saved, counter.toMap());
     }
 
     @Override
@@ -57,9 +57,27 @@ public class CharAnalysisServiceImpl implements CharAnalysisService {
                 .orElse(null);
     }
 
+    @Override
+    public List<CharAnalysisResponse> findByMinimumTotalLetters(int min) {
+        return toResponses(charAnalysisRepository.findByMinimumTotalLetters(min));
+    }
+
+    @Override
+    public List<CharAnalysisResponse> findLatest() {
+        return toResponses(charAnalysisRepository.findLatest());
+    }
+
     private CharAnalysisResponse toResponse(CharAnalysis data){
         CharCounter counter = new CharCounter(data.getKalimat());
 
         return CharAnalysisResponse.from(data, counter.toMap());
+    }
+
+    private List<CharAnalysisResponse> toResponses(List<CharAnalysis> entities){
+        List<CharAnalysisResponse> responses = new ArrayList<>();
+        for(CharAnalysis entity: entities){
+            responses.add(toResponse(entity));
+        }
+        return responses;
     }
 }

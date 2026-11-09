@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface CharAnalysisService {
     List<CharAnalysisResponse> cari(String kata);
-    CharAnalysisResponse simpan(CharAnalysisRequest request);
+    CharAnalysisResponse create(CharAnalysisRequest request);
     CharAnalysisResponse getById(Long id);
+    List<CharAnalysisResponse> findByMinimumTotalLetters(int min);
+    List<CharAnalysisResponse> findLatest();
 }
