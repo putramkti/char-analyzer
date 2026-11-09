@@ -50,6 +50,13 @@ public class CharAnalysisServiceImpl implements CharAnalysisService {
         return CharAnalysisResponse.from(tersimpan, counter.toMap());
     }
 
+    @Override
+    public CharAnalysisResponse getById(Long id) {
+        return charAnalysisRepository.findById(id)
+                .map(this::toResponse)
+                .orElse(null);
+    }
+
     private CharAnalysisResponse toResponse(CharAnalysis data){
         CharCounter counter = new CharCounter(data.getKalimat());
 

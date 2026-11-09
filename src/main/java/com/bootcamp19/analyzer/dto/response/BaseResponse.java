@@ -14,7 +14,7 @@ public class BaseResponse<T> {
         return new BaseResponse<T>("success","OK", data);
     }
 
-    public static <T> BaseResponse<T> failed(T data, String message) {
-        return new BaseResponse<T>("failed", message, null);
+    public static <T> BaseResponse<T> error(String message) {
+        return new BaseResponse<T>("error", message, null);
     }
 }

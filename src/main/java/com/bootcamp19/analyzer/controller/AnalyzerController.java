@@ -64,13 +64,23 @@ public class AnalyzerController {
     }
 
 
-    @GetMapping
+    @PostMapping
     public BaseResponse<CharAnalysisResponse> create(
             @RequestBody CharAnalysisRequest request,
             @RequestHeader(value = "X-Request-Id", required = false) String requestId){
 
         log.info("X-Request-Id={}, kalimat={}", requestId, request.getKalimat());
         return BaseResponse.ok(charAnalysisService.simpan(request));
+    }
+
+    @GetMapping("/{id}")
+    public BaseResponse<CharAnalysisResponse> getById(@PathVariable Long id){
+        CharAnalysisResponse response = charAnalysisService.getById(id);
+        if(response == null){
+            return BaseResponse.error("Data dengan id " + id + " tidak ditemukan");
+
+        }
+        return BaseResponse.ok(response);
     }
 
 
