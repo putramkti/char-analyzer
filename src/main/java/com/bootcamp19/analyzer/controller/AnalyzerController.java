@@ -8,6 +8,7 @@ import com.bootcamp19.analyzer.repository.CharAnalysisRepository;
 import com.bootcamp19.analyzer.service.CharAnalysisService;
 //import com.bootcamp19.analyzer.service.CharCounter;
 import com.bootcamp19.analyzer.util.CharCounter;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 //import org.slf4j.ILoggerFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -63,6 +64,7 @@ public class AnalyzerController {
 
     @PostMapping
     public BaseResponse<CharAnalysisResponse> create(
+            @Valid
             @RequestBody CharAnalysisRequest request,
             @RequestHeader(value = "X-Request-Id", required = false) String requestId){
 
