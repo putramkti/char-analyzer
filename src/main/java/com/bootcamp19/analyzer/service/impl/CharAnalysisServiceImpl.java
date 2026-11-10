@@ -3,6 +3,8 @@ package com.bootcamp19.analyzer.service.impl;
 import com.bootcamp19.analyzer.dto.request.CharAnalysisRequest;
 import com.bootcamp19.analyzer.dto.response.CharAnalysisResponse;
 import com.bootcamp19.analyzer.entity.CharAnalysis;
+import com.bootcamp19.analyzer.exception.AlreadyExistExeption;
+import com.bootcamp19.analyzer.exception.AnalysisNotFoundException;
 import com.bootcamp19.analyzer.repository.CharAnalysisRepository;
 import com.bootcamp19.analyzer.service.CharAnalysisService;
 import com.bootcamp19.analyzer.util.CharCounter;
@@ -39,6 +41,11 @@ public class CharAnalysisServiceImpl implements CharAnalysisService {
 
     @Override
     public CharAnalysisResponse create(CharAnalysisRequest request) {
+        String kalimat = request.getKalimat().trim();
+//        CharAnalysis data = charAnalysisRepository.findByKalimat(request.getKalimat());
+        if(charAnalysisRepository.existsByKalimatIgnoreCase(kalimat)){
+            throw new AlreadyExistExeption(request.getKalimat());
+        }
         CharCounter counter = new CharCounter(request.getKalimat());
 
         CharAnalysis entity = new CharAnalysis();
@@ -52,9 +59,9 @@ public class CharAnalysisServiceImpl implements CharAnalysisService {
 
     @Override
     public CharAnalysisResponse getById(Long id) {
-        return charAnalysisRepository.findById(id)
-                .map(this::toResponse)
-                .orElse(null);
+        CharAnalysis data =  charAnalysisRepository.findById(id)
+                .orElseThrow( () -> new AnalysisNotFoundException(id));
+        return toResponse(data);
     }
 
     @Override

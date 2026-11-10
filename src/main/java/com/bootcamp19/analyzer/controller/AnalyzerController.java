@@ -82,10 +82,10 @@ public class AnalyzerController {
     @GetMapping("/{id}")
     public BaseResponse<CharAnalysisResponse> getById(@PathVariable Long id){
         CharAnalysisResponse response = charAnalysisService.getById(id);
-        if(response == null){
-            return BaseResponse.error("Data dengan id " + id + " tidak ditemukan");
-
-        }
+//        if(response == null){
+//            return BaseResponse.error("Data dengan id " + id + " tidak ditemukan");
+//
+//        }
         return BaseResponse.ok(response);
     }
 
