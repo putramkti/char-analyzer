@@ -1,6 +1,7 @@
 package com.bootcamp19.analyzer.controller;
 
 //import com.bootcamp19.analyzer.util.CharCounter;
+import com.bootcamp19.analyzer.dto.feign.QuoteResponse;
 import com.bootcamp19.analyzer.dto.request.CharAnalysisRequest;
 import com.bootcamp19.analyzer.dto.response.BaseResponse;
 import com.bootcamp19.analyzer.dto.response.CharAnalysisResponse;
@@ -101,4 +102,8 @@ public class AnalyzerController {
         return BaseResponse.ok(charAnalysisService.findLatest());
     }
 
+    @PostMapping("/from-quote")
+    public BaseResponse<CharAnalysisResponse> getRandomQuote(){
+        return BaseResponse.ok(charAnalysisService.analyzeFromQuote());
+    }
 }

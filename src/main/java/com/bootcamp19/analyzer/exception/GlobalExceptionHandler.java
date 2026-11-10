@@ -16,6 +16,11 @@ import java.util.List;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(QuoteUnavailableException.class)
+    public ResponseEntity<BaseResponse<Object>> handleQuoteUnavailableException(QuoteUnavailableException e) {
+        return build(HttpStatus.SERVICE_UNAVAILABLE, e.getMessage());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<BaseResponse<Object>> handleValidation(MethodArgumentNotValidException exception){
         List<String> messages = new ArrayList<>();

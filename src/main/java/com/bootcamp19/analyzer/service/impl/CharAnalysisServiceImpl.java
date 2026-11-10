@@ -1,13 +1,17 @@
 package com.bootcamp19.analyzer.service.impl;
 
+import com.bootcamp19.analyzer.dto.feign.QuoteResponse;
 import com.bootcamp19.analyzer.dto.request.CharAnalysisRequest;
 import com.bootcamp19.analyzer.dto.response.CharAnalysisResponse;
 import com.bootcamp19.analyzer.entity.CharAnalysis;
 import com.bootcamp19.analyzer.exception.AlreadyExistExeption;
 import com.bootcamp19.analyzer.exception.AnalysisNotFoundException;
+import com.bootcamp19.analyzer.exception.QuoteUnavailableException;
 import com.bootcamp19.analyzer.repository.CharAnalysisRepository;
+import com.bootcamp19.analyzer.rest.QuoteClient;
 import com.bootcamp19.analyzer.service.CharAnalysisService;
 import com.bootcamp19.analyzer.util.CharCounter;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +25,7 @@ import java.util.List;
 public class CharAnalysisServiceImpl implements CharAnalysisService {
 
     private final CharAnalysisRepository charAnalysisRepository;
+    private final QuoteClient client;
 
     @Override
     public List<CharAnalysisResponse> cari(String kata) {
@@ -42,19 +47,10 @@ public class CharAnalysisServiceImpl implements CharAnalysisService {
     @Override
     public CharAnalysisResponse create(CharAnalysisRequest request) {
         String kalimat = request.getKalimat().trim();
-//        CharAnalysis data = charAnalysisRepository.findByKalimat(request.getKalimat());
         if(charAnalysisRepository.existsByKalimatIgnoreCase(kalimat)){
             throw new AlreadyExistExeption(request.getKalimat());
         }
-        CharCounter counter = new CharCounter(request.getKalimat());
-
-        CharAnalysis entity = new CharAnalysis();
-        entity.setKalimat(counter.getKalimat());
-        entity.setTotalHuruf(counter.getTotalHuruf());
-        entity.setCreatedAt(LocalDateTime.now());
-
-        CharAnalysis saved = charAnalysisRepository.save(entity);
-        return CharAnalysisResponse.from(saved, counter.toMap());
+        return createClient(kalimat);
     }
 
     @Override
@@ -72,6 +68,30 @@ public class CharAnalysisServiceImpl implements CharAnalysisService {
     @Override
     public List<CharAnalysisResponse> findLatest() {
         return toResponses(charAnalysisRepository.findLatest());
+    }
+
+
+    @Override
+    public CharAnalysisResponse analyzeFromQuote() {
+        QuoteResponse quote;
+        try{
+            quote = client.getQuote();
+        } catch (FeignException feignException) {
+            throw  new QuoteUnavailableException("Service Unavailable");
+        }
+        return createClient(quote.getQuote());
+    }
+
+    private CharAnalysisResponse createClient(String kalimat) {
+        CharCounter counter = new CharCounter(kalimat);
+        CharAnalysis data = new CharAnalysis();
+
+        data.setKalimat(kalimat);
+        data.setTotalHuruf(counter.getTotalHuruf());
+        data.setCreatedAt(LocalDateTime.now());
+
+        CharAnalysis saved = charAnalysisRepository.save(data);
+        return CharAnalysisResponse.from(saved, counter.toMap());
     }
 
     private CharAnalysisResponse toResponse(CharAnalysis data){

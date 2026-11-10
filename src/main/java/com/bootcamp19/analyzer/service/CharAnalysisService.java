@@ -12,4 +12,7 @@ public interface CharAnalysisService {
     CharAnalysisResponse getById(Long id);
     List<CharAnalysisResponse> findByMinimumTotalLetters(int min);
     List<CharAnalysisResponse> findLatest();
+
+//    FEIGN
+    CharAnalysisResponse analyzeFromQuote();
 }
